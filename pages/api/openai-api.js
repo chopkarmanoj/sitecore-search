@@ -23,24 +23,27 @@ export default async function handler(req, res) {
   if (relevantEntries?.length === 0) {
     return res.json({ abstract: `No relevant content found for "${searchKeyword}".` });
   }
+const prompt = `
+You are an AI search assistant that generates a concise and engaging "AI Overview"-style summary.
 
-  const prompt = `
-You are an AI search assistant.
-Summarize entries relevant to the keyword into 3–6 sentences.
+Task:
+Using only the provided dataset, create a 3–6 sentence summary focused entirely on the given keyword.
 
 Rules:
--Shoud be with respect to sitecore only
-- No raw URLs unless necessary.
-- Group related topics.
-- Clear, reader-friendly language.
-- No verbatim copying.
-- Based on the dataset provided. render the result 
-- Use the following dataset to generate the abstract:
-Dataset: ${JSON.stringify(relevantEntries, null, 2)}
-based on this
-Keyword: ${searchKeyword}
+- Topic must be specific to Sitecore.
+- Group related ideas together for flow and readability.
+- Write in clear, reader-friendly language that appeals to both technical and non-technical readers.
+- Avoid copying text verbatim from the dataset—rephrase naturally.
+- Do not include raw URLs unless absolutely necessary.
+- Highlight the key features, benefits, and use cases.
+- Ensure the style matches an AI-generated search snippet.
 
+Dataset:
+${JSON.stringify(relevantEntries, null, 2)}
+
+Keyword:${searchKeyword}
 `;
+
 
   try {
     const response = await openai.chat.completions.create({

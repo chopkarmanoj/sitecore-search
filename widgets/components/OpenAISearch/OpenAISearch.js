@@ -44,7 +44,7 @@ export default function OpenAISearch({ dataForAI, searchKeyword, setIsDataReceiv
       <div className="flex items-center gap-3 mb-4">
         <SparklesIcon className="w-6 h-6 text-indigo-500 animate-pulse" />
         <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100">
-          AI-Powered Insights
+          {/* AI-Powered Insights */}
         </h2>
       </div>
 

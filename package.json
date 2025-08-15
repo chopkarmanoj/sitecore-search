@@ -10,6 +10,7 @@
     "create-widget": "sc-search new-widget"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "@radix-ui/react-icons": "^1.3.0",
     "@sitecore-search/react": "^2.6.3",
     "@sitecore-search/ui": "^2.6.3",

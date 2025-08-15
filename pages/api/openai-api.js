@@ -34,9 +34,12 @@ Rules:
 - Group related topics.
 - Clear, reader-friendly language.
 - No verbatim copying.
-
-Keyword: ${searchKeyword}
+- Based on the dataset provided. render the result 
+- Use the following dataset to generate the abstract:
 Dataset: ${JSON.stringify(relevantEntries, null, 2)}
+based on this
+Keyword: ${searchKeyword}
+
 `;
 
   try {

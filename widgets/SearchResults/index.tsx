@@ -66,14 +66,7 @@ export const SearchResultsComponent = ({
     },
   } = useSearchResults<ArticleModel, InitialState>({
     query: (query) => {
-      query
-        .getRequest()
-        .setSources(["1118907"])
-        // .setSearchFacetAll(false)
-        // .setSearchFacetTypes([
-        //   { name: "categories" },
-          
-        // ]);
+      query.getRequest().setSources(["1118907"]);
     },
     state: {
       sortType: defaultSortType,
@@ -82,19 +75,19 @@ export const SearchResultsComponent = ({
       keyphrase: defaultKeyphrase,
     },
   });
+
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
-    const router = useRouter();
-    const [keyword, setKeyword] = useState("");
-  
-    useEffect(() => {
-      if (router.isReady) {
-        const query = router.query.q as string;
-        setKeyword(query || "");
-      }
-    }, [router.isReady, router.query.q]);
+  const router = useRouter();
+  const [keyword, setKeyword] = useState("");
+  const [isDataReceived, setIsDataReceived] = useState(false);
 
-    const[isDataReceived , setIsDataReceived] = useState(false);
+  useEffect(() => {
+    if (router.isReady) {
+      const query = router.query.q as string;
+      setKeyword(query || "");
+    }
+  }, [router.isReady, router.query.q]);
 
   if (isLoading) {
     return (
@@ -104,70 +97,100 @@ export const SearchResultsComponent = ({
     );
   }
 
-  console.log("Keyword sds:", keyword);
   return (
-    
-    <div ref={widgetRef}>
-      <OpenAISearch dataForAI={articles} searchKeyword={keyword} setIsDataReceived={setIsDataReceived}/>
-      {isDataReceived &&
-      <div className="flex relative max-w-full px-4 text-black dark:text-gray-100 text-opacity-75">
-        {isFetching && (
-          <div className="w-full h-full fixed top-0 left-0 bottom-0 right-0 z-30 bg-white dark:bg-gray-900 opacity-50">
-            <div className="absolute top-[50%] left-[50%] -translate-x-[50%] -translate-y-[50%] flex flex-col justify-center items-center z-40">
-              <Spinner loading />
-            </div>
-          </div>
-        )}
-        {totalItems > 0 && (
-          <>
-            <section className="flex flex-col flex-none relative mt-4 mr-8 w-[25%]">
-              <Filter />
+    <div ref={widgetRef} className="px-6 py-4 bg-gray-50 dark:bg-gray-900 min-h-screen">
+      
+      {/* AI Search Section */}
 
-              <SearchFacets facets={facets}  />
-            </section>
-            <section className="flex flex-col flex-[4_1_0%]">
-              {/* Sort Select */}
-              <section className="flex justify-between text-xs">
-                {totalItems > 0 && (
-                  <QueryResultsSummary
-                    currentPage={page}
-                    itemsPerPage={itemsPerPage}
-                    totalItems={totalItems}
-                    totalItemsReturned={articles.length}
-                  />
-                )}
+      
+      <section className="max-w-[1400px] mx-auto mb-8">
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-700 rounded-2xl shadow p-6 border border-blue-100 dark:border-gray-600">
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">
+            AI-Powered Insights
+          </h2>
+          <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+            Get AI-generated answers and insights from your search results powered by OpenAI.
+          </p>
+          <OpenAISearch
+            dataForAI={articles}
+            searchKeyword={keyword}
+            setIsDataReceived={setIsDataReceived}
+          />
+        </div>
+      </section>
+
+      {isDataReceived && (
+        <div className="flex gap-6 max-w-[1400px] mx-auto text-black dark:text-gray-100 text-opacity-75">
+          {isFetching && (
+            <div className="w-full h-full fixed top-0 left-0 bottom-0 right-0 z-30 bg-white dark:bg-gray-900 opacity-50">
+              <div className="absolute top-[50%] left-[50%] -translate-x-[50%] -translate-y-[50%] flex flex-col justify-center items-center z-40">
+                <Spinner loading />
+              </div>
+            </div>
+          )}
+
+          {/* Sidebar */}
+          <aside className="flex flex-col w-[280px] flex-shrink-0 bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4">
+            <h2 className="text-lg font-semibold mb-4">Filters</h2>
+            <Filter />
+            <SearchFacets facets={facets} />
+          </aside>
+
+          {/* Main Content */}
+          <main className="flex-1">
+            {totalItems > 0 && (
+              <section className="flex justify-between items-center text-sm mb-4">
+                <QueryResultsSummary
+                  currentPage={page}
+                  itemsPerPage={itemsPerPage}
+                  totalItems={totalItems}
+                  totalItemsReturned={articles.length}
+                />
                 <SortOrder options={sortChoices} selected={sortType} />
               </section>
+            )}
 
-              {/* Results */}
-              <div className="w-full">
-                {articles.map((a, index) => (
-                  <ArticleHorizontalItemCard
-                    key={a.id}
-                    article={a as ArticleModel}
-                    index={index}
-                    onItemClick={onItemClick}
-                    displayText={true}
-                  />
-                ))}
-              </div>
-              <div className="flex flex-col md:flex-row md:justify-between text-xs">
-                <ResultsPerPage defaultItemsPerPage={defaultItemsPerPage} />
-                <SearchPagination currentPage={page} totalPages={totalPages} />
-              </div>
-            </section>
-          </>
-        )}
-        {totalItems <= 0 && !isFetching && (
-          <div className="w-full flex justify-center">
-            <h3>0 Results</h3>
-          </div>
-        )}
-      </div>
-}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {articles.map((a) => (
+                <div
+                  key={a.id}
+                  onClick={() => onItemClick?.(a)}
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow hover:shadow-lg transition-shadow duration-200 cursor-pointer flex flex-col overflow-hidden"
+                >
+                  <div className="w-full h-40 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                    {a.image_url ? (
+                      <img
+                        src={a.image_url}
+                        alt={a.title || "Article"}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-gray-500 text-sm">No Image</span>
+                    )}
+                  </div>
+                  <div className="p-4 flex flex-col gap-2 flex-grow">
+                    <h3 className="font-semibold text-base leading-snug line-clamp-2">
+                      {a.title || a.name}
+                    </h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-3">
+                      {a.description || a.content_text || "No description available."}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex flex-col md:flex-row md:justify-between items-center gap-4 mt-6 text-sm">
+              <ResultsPerPage defaultItemsPerPage={defaultItemsPerPage} />
+              <SearchPagination currentPage={page} totalPages={totalPages} />
+            </div>
+          </main>
+        </div>
+      )}
     </div>
   );
 };
+
 const SearchResultsWidget = widget(
   SearchResultsComponent,
   WidgetDataType.SEARCH_RESULTS,

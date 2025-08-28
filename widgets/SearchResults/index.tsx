@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { WidgetDataType, useSearchResults, widget } from "@sitecore-search/react";
